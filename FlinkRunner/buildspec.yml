@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - export COMMITS_ON_MAIN=$(git rev-list --count main)
+      - export GIT_SHA_SHORT=$(git rev-parse --short main)
+      - export APP_VERSION=1.$COMMITS_ON_MAIN.$GIT_SHA_SHORT
+      - export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain artifact-neuro-id --domain-owner 829251675013 --query authorizationToken --output text --region $AWS_DEFAULT_REGION)
+  build:
+    commands:
+      - echo "-- Building Project..."
+      - ./gradlew shadowJar
+      - echo "-- Uploading Build Artifacts..."
+      - aws sts assume-role --role-arn "${DEV2_ROLE_ARN}" --role-session-name flink-pipeline-build-${CODEBUILD_BUILD_NUMBER} --duration-seconds 900 > assumed-role-info.json
+      - export AWS_ACCESS_KEY_ID=$(cat assumed-role-info.json | jq -r .Credentials.AccessKeyId)
+      - export AWS_SECRET_ACCESS_KEY=$(cat assumed-role-info.json | jq -r .Credentials.SecretAccessKey)
+      - export AWS_SESSION_TOKEN=$(cat assumed-role-info.json | jq -r .Credentials.SessionToken)
+      - aws s3 cp --region=us-east-1 "FlinkRunner/build/libs/flink-poc.jar" "s3://nid-lambda-deployment-artifacts-use1/flink-pipeline/FlinkRunner/flink-poc-$APP_VERSION.jar"

@@ -1,0 +1,12 @@
+{
+  "ApplicationConfigurationUpdate": {
+    "ApplicationCodeConfigurationUpdate": {
+      "CodeContentUpdate": {
+        "S3ContentLocationUpdate": {
+          "BucketARNUpdate": "arn:aws:s3:::nid-lambda-deployment-artifacts-use1",
+          "FileKeyUpdate": "Flink-Poc/flink-poc.jar"
+        }
+      }
+    }
+  }
+}

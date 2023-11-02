@@ -1,0 +1,64 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'application'
+    id 'io.freefair.lombok' version '5.3.3.3'
+}
+
+mainClassName = 'com.neuroid.App'
+
+repositories {
+
+    mavenCentral()
+}
+
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+shadowJar {
+    manifest {
+        attributes 'Implementation-Title': 'App',
+                'Main-Class': 'com.neuroid.App'
+    }
+    baseName = project.name
+    archiveName = 'flink-poc.jar'
+}
+
+dependencies {
+    testImplementation 'org.codehaus.groovy:groovy:3.0.7'
+    testImplementation 'org.spockframework:spock-core:2.0-M4-groovy-3.0'
+    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'org.apache.flink:flink-test-utils_2.12:1.13.1'
+    testImplementation 'org.apache.flink:flink-runtime_2.12:1.13.1'
+    testImplementation 'org.apache.flink:flink-streaming-java_2.12:1.13.1:tests'
+
+    implementation 'com.google.guava:guava:30.0-jre'
+    implementation 'org.apache.flink:flink-streaming-java_2.12:1.13.1'
+    implementation 'org.apache.flink:flink-connector-kinesis_2.12:1.13.1'
+    implementation 'org.apache.flink:flink-clients_2.12:1.13.1'
+    implementation 'com.amazonaws:aws-kinesisanalytics-flink:2.0.0'
+    implementation 'com.amazonaws:aws-java-sdk-logs:1.11.903'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'org.apache.logging.log4j:log4j-core:2.11.2'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.2'
+}
+
+application {
+    mainClass = 'com.neuroid.App'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = true
+    }
+}
